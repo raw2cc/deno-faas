@@ -1,24 +1,28 @@
-import { isURL } from "https://deno.land/x/is_url@v1.0.1/mod.ts";
-import { exists } from "https://deno.land/std@0.78.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.78.0/path/mod.ts";
+import "https://deno.land/x/fitch@v1.0.0/polyfill.ts";
+import { isWindows } from "https://deno.land/std@0.78.0/_util/os.ts";
+export async function importUrl(
+  url: URL,
+): Promise<unknown> {
+  if (url.protocol === "file:") {
+    if (isWindows) {
+      return await import(url.pathname);
+    } else {
+      return await import(url.pathname);
+    }
+  } else {
+    return await import(url.href);
+  }
+}
 
 export async function exist(
   base: string,
   path: string,
-): Promise<string | undefined> {
+): Promise<URL | undefined> {
   try {
-    if (isURL(base)) {
-      const url = join(base, path);
-      const exist = await fetch(url, { method: "HEAD" });
-      if (exist.ok) {
-        return url.toString();
-      }
-    } else {
-      const url = join(base, path);
-      const exist = await exists(url);
-      if (exist) {
-        return new URL(url,import.meta.url).href;
-      }
+    const url = new URL(path, base);
+    const exist = await fetch(url, { method: "HEAD" });
+    if(exist.ok){
+      return url;
     }
   } catch (e) {
     console.error(`found ${base} ${path} error`);
@@ -31,14 +35,14 @@ export async function existWithExt(
   base: string,
   path: string,
   ext: string,
-): Promise<string | undefined> {
+): Promise<URL | undefined> {
   return await exist(base, `${path}.${ext}`);
 }
 
 export async function scriptExist(
   base: string,
   path: string,
-): Promise<string | undefined> {
+): Promise<URL | undefined> {
   if (path.endsWith("/")) {
     return await scriptExist(base, `${path}index`);
   } else {

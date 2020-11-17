@@ -1,5 +1,5 @@
 import { ServerRequest } from "https://deno.land/std@0.77.0/http/server.ts";
-import { scriptExist } from "./util.ts";
+import { importUrl, scriptExist } from "./util.ts";
 
 interface FunctionMoudle {
   init(data: unknown): Promise<unknown>;
@@ -45,7 +45,7 @@ export class Controller {
     filePath: string,
     functions: Map<string, FunctionMoudle> = this.functions,
   ): Promise<FunctionMoudle | undefined> {
-    const truePath = await scriptExist(this.remote, filePath);
+    const truePath = await scriptExist(this.remote, `.${filePath}`);
     let module = undefined;
     try {
       if (functions.has(filePath)) {
@@ -60,7 +60,7 @@ export class Controller {
         functions.delete(filePath);
       }
       if (truePath) {
-        module = await import(truePath) as FunctionMoudle;
+        module = await importUrl(truePath) as FunctionMoudle;
         if (!module.call) {
           module = undefined;
         } else if (module.init) {
