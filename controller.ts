@@ -12,7 +12,7 @@ export class Controller {
   refreshId: number;
   index: number;
 
-  constructor(remote: string, refreshTime: number = 10 * 60) {
+  constructor(remote: string, refreshTime: number) {
     this.remote = remote;
     this.functions = new Map<string, FunctionMoudle>();
     this.refreshId = 0;
@@ -75,7 +75,6 @@ export class Controller {
   async refresh() {
     const functions = new Map<string, FunctionMoudle>();
     for (const filePath of this.functions.keys()) {
-      const fn = this.functions.get(filePath);
       await this.load(filePath, functions);
     }
     this.functions.clear();
@@ -92,7 +91,10 @@ export class Controller {
   beginRefresh(refreshTime: number) {
     if (this.refreshId == 0) {
       if (refreshTime > 60) {
-        this.refreshId = setInterval(this.refresh, refreshTime * 1000);
+        this.refreshId = setInterval(
+          this.refresh.bind(this),
+          refreshTime * 1000,
+        );
       }
     }
   }

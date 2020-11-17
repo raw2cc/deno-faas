@@ -6,12 +6,13 @@ config({ export: true });
 
 const port = Deno.env.get("port") ?? "3000";
 const remote = Deno.env.get("remote");
+const refreshTime = Deno.env.get("refresh_time") ?? 10 * 60;
 if (!remote) {
   console.error("Need remote");
   Deno.exit(0);
 }
 const server = serve({ hostname: "0.0.0.0", port: +port });
-const controller = new Controller(remote);
+const controller = new Controller(remote, +refreshTime);
 
 console.log(`Deno fass running. Access it at:  http://localhost:${+port}/`);
 
