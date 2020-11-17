@@ -1,6 +1,6 @@
 import { isURL } from "https://deno.land/x/is_url@v1.0.1/mod.ts";
 import { exists } from "https://deno.land/std@0.78.0/fs/mod.ts";
-import { join,relative } from "https://deno.land/std@0.78.0/path/mod.ts";
+import { join } from "https://deno.land/std@0.78.0/path/mod.ts";
 
 export async function exist(
   base: string,
@@ -10,7 +10,6 @@ export async function exist(
     if (isURL(base)) {
       const url = join(base, path);
       const exist = await fetch(url, { method: "HEAD" });
-      console.log(url);
       if (exist.ok) {
         return url.toString();
       }
