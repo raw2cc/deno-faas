@@ -2,8 +2,9 @@ import { ServerRequest } from "https://deno.land/std@0.77.0/http/server.ts";
 import { scriptExist } from "./util.ts";
 
 interface FunctionMoudle {
-  init(): Promise<unknown>;
+  init(data: unknown): Promise<unknown>;
   call(request: ServerRequest): Promise<unknown>;
+  unInit(data: unknown): Promise<unknown>;
 }
 
 export class Controller {
@@ -11,10 +12,12 @@ export class Controller {
   functions: Map<string, FunctionMoudle>;
   refreshId: number;
   index: number;
+  data: unknown;
 
   constructor(remote: string, refreshTime: number) {
     this.remote = remote;
     this.functions = new Map<string, FunctionMoudle>();
+    this.data = {};
     this.refreshId = 0;
     this.beginRefresh(refreshTime);
     this.index = 0;
@@ -46,6 +49,14 @@ export class Controller {
     let module = undefined;
     try {
       if (functions.has(filePath)) {
+        const fn = functions.get(filePath);
+        if (fn && fn.unInit) {
+          try {
+            fn.unInit(this.data);
+          } catch (e) {
+            console.error(e);
+          }
+        }
         functions.delete(filePath);
       }
       if (truePath) {
@@ -53,7 +64,7 @@ export class Controller {
         if (!module.call) {
           module = undefined;
         } else if (module.init) {
-          module.init();
+          module.init(this.data);
           functions.set(filePath, module);
         }
       }

@@ -1,4 +1,4 @@
-export function init() {
+export function init(data) {
   console.log('init');
 }
 
