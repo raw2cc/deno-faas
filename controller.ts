@@ -26,15 +26,14 @@ export class Controller {
   ): Promise<unknown> {
     try {
       const module = await this.find(filePath);
-      if(module){
+      if (module) {
         return await module.call(request);
-      }
-      else{
-        request.respond({status:404,body:"no found"})
+      } else {
+        request.respond({ status: 404, body: "no found" });
         return undefined;
       }
     } catch (e) {
-      request.respond({status:500,body:"error"});
+      request.respond({ status: 500, body: "error" });
       console.error(e);
     }
   }
@@ -57,17 +56,17 @@ export class Controller {
           truePath = js;
         }
       }
-
+      if (functions.has(filePath)) {
+        functions.delete(filePath);
+      }
       if (truePath) {
         module = await import(truePath) as FunctionMoudle;
         if (!module.call) {
           module = undefined;
         } else if (module.init) {
           module.init();
+          functions.set(filePath, module);
         }
-      }
-      if (functions.has(filePath)) {
-        functions.delete(filePath);
       }
     } catch (e) {
       console.error(e);
