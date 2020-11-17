@@ -6,5 +6,6 @@ export function init() {
 
 
 export function call(request: ServerRequest) {
-  request.respond({ status: 200, body: "hello" });
+  request.respond({ status: 200, body: "hello test1.ts" });
+
 }
