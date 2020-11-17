@@ -10,9 +10,14 @@ const controller = new Controller(flag['remote']);
 console.log(`Deno function running. Access it at:  http://localhost:${flag['port']}/`);
 
 for await (const request of server) {
-    const base = request.headers.get('host') ?? "http://0.0.0.0/";
-    const path = new URL(request.url, base).pathname;
-    controller.call(path, request).then(()=>{
-        console.log(path)
-    })
+    try{
+        const base = request.headers.get('host') ?? "http://0.0.0.0/";
+        const path = new URL(request.url, base).pathname;
+        controller.call(path, request).then(()=>{
+            console.log(path)
+        })
+    }catch(e){
+        console.error("handle request error!")
+    }
+
 }
